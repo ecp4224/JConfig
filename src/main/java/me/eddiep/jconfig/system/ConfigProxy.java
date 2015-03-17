@@ -9,9 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import java.util.*;
 
 public class ConfigProxy implements InvocationHandler {
     private Parser parser;
@@ -34,8 +32,14 @@ public class ConfigProxy implements InvocationHandler {
             defaultLocation = loc.location();
         }
 
+        List<Method> methods = new ArrayList<Method>();
+        methods.addAll(Arrays.asList(configClass.getMethods()));
 
-        Method[] methods = configClass.getDeclaredMethods();
+        Class parent = configClass.getSuperclass();
+        while (parent != null) {
+            methods.addAll(Arrays.asList(parent.getDeclaredMethods()));
+            parent = configClass.getSuperclass();
+        }
 
         for (Method m : methods) {
             Annotation[] prop = m.getDeclaredAnnotations();
